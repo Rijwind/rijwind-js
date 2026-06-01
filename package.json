@@ -1,0 +1,67 @@
+{
+    "name": "@rijwind/sdk",
+    "version": "0.1.0",
+    "description": "Maps, geocoding, and routing SDK for the Rijwind API.",
+    "license": "MIT",
+    "homepage": "https://docs.rijwind.com",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rijwind/rijwind-js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/rijwind/rijwind-js/issues"
+    },
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./client": {
+            "types": "./dist/client.d.ts",
+            "import": "./dist/client.js"
+        },
+        "./tiles": {
+            "types": "./dist/tiles.d.ts",
+            "import": "./dist/tiles.js"
+        },
+        "./style.css": "./dist/style.css"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "gen-types": "openapi-typescript ./apis/openapi.json -o src/types.ts",
+        "build": "npm run gen-types && tsc && cp src/style.css dist/style.css",
+        "lint": "tsc --noEmit"
+    },
+    "dependencies": {
+        "maplibre-gl": "^5.0.0",
+        "openapi-fetch": "^0.17.0",
+        "pmtiles": "^4.0.0"
+    },
+    "devDependencies": {
+        "openapi-typescript": "^7.13.0",
+        "typescript": "^5.7.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "keywords": [
+        "rijwind",
+        "maps",
+        "maplibre",
+        "pmtiles",
+        "geocoding",
+        "routing",
+        "isochrone"
+    ]
+}

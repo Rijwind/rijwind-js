@@ -1,0 +1,5 @@
+/* Rijwind SDK map styles. Re-exports MapLibre's required CSS so you don't
+ * have to know the map library is MapLibre under the hood:
+ *   import "@rijwind/sdk/style.css";
+ */
+@import 'maplibre-gl/dist/maplibre-gl.css';

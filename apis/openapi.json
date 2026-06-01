@@ -1,0 +1,1265 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Rijwind API",
+    "description": "A cloud-native, European, privacy-friendly maps API.\n\nOne key, three surfaces: a vector basemap delivered from a global CDN, forward and reverse geocoding over a worldwide place index, and routing — turn-by-turn directions, travel-time matrices, and reachable-area isochrones — for car, bike, and pedestrian profiles.\n\nEvery endpoint shares the same authentication model (a single Bearer key) and the same per-user monthly quota. Manage keys and quota in the dashboard at https://rijwind.com/dashboard.\n\n**Status:** v1 is live. Versioning is in the URL path, so when v2 lands v1 keeps working until announced end-of-life.",
+    "contact": {
+      "name": "Rijwind support",
+      "url": "https://rijwind.com",
+      "email": "info@rijwind.com"
+    },
+    "license": {
+      "name": "Terms of service",
+      "url": "https://rijwind.com/terms"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.rijwind.com",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/v1/geocode/autocomplete": {
+      "get": {
+        "tags": [
+          "Geocoding"
+        ],
+        "summary": "Geocode autocomplete (type-ahead).",
+        "description": "Type-ahead variant of `/v1/geocode/search`, billed at a tenth of the cost — fire it on every keystroke from a search bar.\n\n**Quota cost:** 0.1 unit per call.",
+        "operationId": "geocode_autocomplete",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Free-text query, typically a partial input.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "amst"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "description": "Preferred language.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "en"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of suggestions.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            },
+            "example": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Autocomplete suggestions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceFeatureCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/geocode/reverse": {
+      "get": {
+        "tags": [
+          "Geocoding"
+        ],
+        "summary": "Reverse geocode.",
+        "description": "Turn coordinates into the nearest named place.\n\n**Quota cost:** 1 unit per call.",
+        "operationId": "geocode_reverse",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Latitude.",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 52.3676
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "description": "Longitude.",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 4.9041
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "description": "Preferred language.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "en"
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "description": "Search radius in kilometers.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 1.0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reverse-geocode result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceFeatureCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Latitude or longitude out of range.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/geocode/search": {
+      "get": {
+        "tags": [
+          "Geocoding"
+        ],
+        "summary": "Forward geocode.",
+        "description": "Turn a place name or address into coordinates. Returns a GeoJSON FeatureCollection ranked by relevance.\n\n**Quota cost:** 1 unit per call.",
+        "operationId": "geocode_search",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Free-text query.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Damrak 1, Amsterdam"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "description": "Preferred language (ISO 639-1, or `default`).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "en"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of results.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            },
+            "example": 5
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Bias results toward this latitude.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "description": "Bias results toward this longitude.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "bbox",
+            "in": "query",
+            "description": "Restrict results to a bounding box: `minLon,minLat,maxLon,maxLat`.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Forward-geocode results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceFeatureCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Query parameters failed validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted (hard-cap plans only).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/isochrone": {
+      "post": {
+        "tags": [
+          "Routing"
+        ],
+        "summary": "Reachable-area polygons.",
+        "description": "Compute reachable-area polygons (isochrones) from one or more origins. Each contour is a time or distance band, returned as a GeoJSON Feature.\n\n**Quota cost:** `5 × L × C` units per call (`L = locations`, `C = contours`). Capped at `L × C ≤ 4`; requests beyond that return 400.",
+        "operationId": "isochrone",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsochroneRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Isochrone response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsochroneResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed, costing unsupported, or `L × C > 4`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/matrix": {
+      "post": {
+        "tags": [
+          "Routing"
+        ],
+        "summary": "Travel-time matrix.",
+        "description": "Calculate the travel time and distance between every source and every target — the cost grows with `M × N`, the number of pairs.\n\n**Quota cost:** `M × N` units per call (`M = sources`, `N = targets`). Capped at `M × N ≤ 2500`; requests beyond that return 400 without charging quota.",
+        "operationId": "matrix",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatrixRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matrix response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatrixResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed, costing unsupported, or `M × N > 2500`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/route": {
+      "post": {
+        "tags": [
+          "Routing"
+        ],
+        "summary": "Turn-by-turn directions.",
+        "description": "Calculate a route between two or more waypoints.\n\n**Quota cost:** 1 unit per call.",
+        "operationId": "route",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Route response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed body or unsupported costing profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/v1/tiles-token": {
+      "get": {
+        "tags": [
+          "Tiles"
+        ],
+        "summary": "Sign a tile-server URL.",
+        "description": "Returns a short-lived, IP-bound signed URL for the vector basemap. Feed it to MapLibre's `pmtiles://` protocol handler. Pass a stable `session` id (one per map instance) so background URL refreshes within the session are billed once — the `@rijwind/sdk` tile-session helper manages this for you.\n\n**Quota cost:** 1 unit per tile session; refreshes within the same session are free. Omit `session` to be billed per request instead.",
+        "operationId": "sign_tile_url",
+        "parameters": [
+          {
+            "name": "session",
+            "in": "query",
+            "description": "Stable, client-minted identifier for the map instance (e.g. a UUID, `[A-Za-z0-9_-]`, ≤128 chars). The first token for a session is billed 1 unit; subsequent tokens for the same session within the session window are free. Omit to be billed per request.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "8f14e45f-ceea-467a-9e0b-1c2d3e4f5a6b"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed URL.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignedTileUrl"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin not in the project's allow-list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted (hard-cap plans only).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Costing": {
+        "type": "string",
+        "description": "Routing profile. `auto` (car), `bicycle`, or `pedestrian` (foot).",
+        "enum": [
+          "auto",
+          "bicycle",
+          "pedestrian"
+        ]
+      },
+      "DirectionsOptions": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Language for narrative directions.",
+            "example": "en-US"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Standard error envelope. The `error` field is a stable, machine-readable code; the `message` field is for humans and may be rewritten for clarity between releases.",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Machine-readable error code, e.g. `quota_exhausted`.",
+            "example": "quota_exhausted"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable explanation.",
+            "example": "Monthly request quota exceeded for this key."
+          }
+        }
+      },
+      "IsochroneContour": {
+        "type": "object",
+        "description": "One contour for an isochrone request — either `time` (minutes) or `distance` (in the request's `units`). `color` is a hex color without the leading hash, used for the rendered polygon's stroke and fill.",
+        "properties": {
+          "color": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Hex color without leading hash.",
+            "example": "ff0000"
+          },
+          "distance": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "time": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double",
+            "example": 15.0
+          }
+        }
+      },
+      "IsochroneFeature": {
+        "type": "object",
+        "required": [
+          "type",
+          "properties",
+          "geometry"
+        ],
+        "properties": {
+          "geometry": {
+            "description": "GeoJSON geometry — Polygon or LineString depending on the `polygons` flag."
+          },
+          "properties": {
+            "$ref": "#/components/schemas/IsochroneFeatureProperties"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "IsochroneFeatureProperties": {
+        "type": "object",
+        "properties": {
+          "color": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "contour": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "metric": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "IsochroneRequest": {
+        "type": "object",
+        "required": [
+          "locations",
+          "costing",
+          "contours"
+        ],
+        "properties": {
+          "contours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IsochroneContour"
+            },
+            "description": "One contour per reachable-area band. The product\n`len(locations) × len(contours)` must not exceed 4.",
+            "maxItems": 4,
+            "minItems": 1
+          },
+          "costing": {
+            "$ref": "#/components/schemas/Costing"
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LngLat"
+            },
+            "maxItems": 4,
+            "minItems": 1
+          },
+          "polygons": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Return polygons instead of GeoJSON LineStrings."
+          }
+        }
+      },
+      "IsochroneResponse": {
+        "type": "object",
+        "description": "GeoJSON FeatureCollection with one feature per contour.",
+        "required": [
+          "type",
+          "features"
+        ],
+        "properties": {
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IsochroneFeature"
+            }
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "LngLat": {
+        "type": "object",
+        "description": "A `(lat, lon)` pair. Latitude is in [-90, 90], longitude in [-180, 180].",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double",
+            "example": 52.3676
+          },
+          "lon": {
+            "type": "number",
+            "format": "double",
+            "example": 4.9041
+          }
+        }
+      },
+      "MatrixCell": {
+        "type": "object",
+        "required": [
+          "fromIndex",
+          "toIndex"
+        ],
+        "properties": {
+          "distance": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double",
+            "description": "Distance in the requested units. `null` if the pair is unreachable.",
+            "example": 60.4
+          },
+          "fromIndex": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "time": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double",
+            "description": "Travel time in seconds. `null` if the pair is unreachable.",
+            "example": 4810.0
+          },
+          "toIndex": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "MatrixRequest": {
+        "type": "object",
+        "required": [
+          "sources",
+          "targets",
+          "costing"
+        ],
+        "properties": {
+          "costing": {
+            "$ref": "#/components/schemas/Costing"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LngLat"
+            },
+            "minItems": 1
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LngLat"
+            },
+            "minItems": 1
+          },
+          "units": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Units"
+              }
+            ]
+          }
+        }
+      },
+      "MatrixResponse": {
+        "type": "object",
+        "description": "Matrix response. Outer array indexes sources, inner array indexes targets — `M × N` cells in row-major order.",
+        "required": [
+          "sourcesToTargets",
+          "units"
+        ],
+        "properties": {
+          "sourcesToTargets": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/MatrixCell"
+              }
+            }
+          },
+          "units": {
+            "type": "string"
+          }
+        }
+      },
+      "PlaceFeature": {
+        "type": "object",
+        "required": [
+          "type",
+          "geometry",
+          "properties"
+        ],
+        "properties": {
+          "geometry": {
+            "$ref": "#/components/schemas/PointGeometry"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/PlaceProperties"
+          },
+          "type": {
+            "type": "string",
+            "description": "Fixed string `\"Feature\"`."
+          }
+        }
+      },
+      "PlaceFeatureCollection": {
+        "type": "object",
+        "description": "Standard GeoJSON FeatureCollection, ranked by relevance.",
+        "required": [
+          "type",
+          "features"
+        ],
+        "properties": {
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlaceFeature"
+            }
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "PlaceProperties": {
+        "type": "object",
+        "description": "Geographic metadata for a place. Optional fields are omitted when the underlying record doesn't carry them — e.g. a country-level result has no `street`.",
+        "properties": {
+          "city": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Amsterdam"
+          },
+          "country": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Netherlands"
+          },
+          "countrycode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO 3166-1 alpha-2 country code.",
+            "example": "NL"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Display name of the place.",
+            "example": "Damrak"
+          },
+          "postcode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "1012"
+          },
+          "state": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "North Holland"
+          },
+          "street": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Damrak"
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "What kind of place this is — `street`, `house`, `locality`, `city`,\n`district`, `region`, `country`, etc.",
+            "example": "street"
+          }
+        }
+      },
+      "PointGeometry": {
+        "type": "object",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "`[lon, lat]`.",
+            "example": [
+              4.9041,
+              52.3676
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "Fixed string `\"Point\"`.",
+            "example": "Point"
+          }
+        }
+      },
+      "RouteLeg": {
+        "type": "object",
+        "required": [
+          "shape",
+          "summary",
+          "maneuvers"
+        ],
+        "properties": {
+          "maneuvers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteManeuver"
+            }
+          },
+          "shape": {
+            "type": "string",
+            "description": "Encoded polyline at 1e-6 precision (the standard Google polyline\nalgorithm with 6 decimals instead of 5). Decoders are available for\nevery major language — in JavaScript, `@mapbox/polyline` with the\nprecision set to 6 returns `[lat, lon]` pairs."
+          },
+          "summary": {
+            "$ref": "#/components/schemas/RouteSummary"
+          }
+        }
+      },
+      "RouteManeuver": {
+        "type": "object",
+        "required": [
+          "instruction",
+          "length",
+          "time",
+          "beginShapeIndex",
+          "endShapeIndex"
+        ],
+        "properties": {
+          "beginShapeIndex": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "endShapeIndex": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "instruction": {
+            "type": "string",
+            "example": "Head north on Damrak."
+          },
+          "length": {
+            "type": "number",
+            "format": "double"
+          },
+          "time": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RouteRequest": {
+        "type": "object",
+        "required": [
+          "locations",
+          "costing"
+        ],
+        "properties": {
+          "costing": {
+            "$ref": "#/components/schemas/Costing"
+          },
+          "directionsOptions": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DirectionsOptions"
+              }
+            ]
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LngLat"
+            },
+            "description": "Two or more ordered waypoints. The first is the origin, the last is the destination.",
+            "minItems": 2
+          },
+          "units": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Units"
+              }
+            ]
+          }
+        }
+      },
+      "RouteResponse": {
+        "type": "object",
+        "description": "Route response. The interesting fields are `trip.summary` (totals) and `trip.legs[i].shape` (an encoded polyline ready to render).",
+        "required": [
+          "trip"
+        ],
+        "properties": {
+          "trip": {
+            "$ref": "#/components/schemas/Trip"
+          }
+        }
+      },
+      "RouteSummary": {
+        "type": "object",
+        "required": [
+          "length",
+          "time"
+        ],
+        "properties": {
+          "length": {
+            "type": "number",
+            "format": "double",
+            "description": "Total length in the requested units.",
+            "example": 60.4
+          },
+          "maxLat": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "maxLon": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "minLat": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "minLon": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "time": {
+            "type": "number",
+            "format": "double",
+            "description": "Total travel time in seconds.",
+            "example": 4810.0
+          }
+        }
+      },
+      "SignedTileUrl": {
+        "type": "object",
+        "description": "Short-lived signed URL pointing at the basemap on `cdn.rijwind.com`. The signature is bound to the requester's IP and expires after a short TTL — refresh it within a tile session rather than re-signing on a fixed schedule (the `@rijwind/sdk` tile-session helper does this for you).",
+        "required": [
+          "url",
+          "expiresAt"
+        ],
+        "properties": {
+          "expiresAt": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp (seconds) when the signature expires.",
+            "example": 1715680000
+          },
+          "url": {
+            "type": "string",
+            "description": "Signed URL ready to feed to MapLibre's `pmtiles://` protocol handler.",
+            "example": "https://cdn.rijwind.com/tiles/planet.pmtiles?token=2Tw9…&expires=1715680000"
+          }
+        }
+      },
+      "Trip": {
+        "type": "object",
+        "required": [
+          "summary",
+          "legs",
+          "status",
+          "statusMessage",
+          "units",
+          "language"
+        ],
+        "properties": {
+          "language": {
+            "type": "string",
+            "example": "en-US"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteLeg"
+            }
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "example": 0
+          },
+          "statusMessage": {
+            "type": "string",
+            "example": "Found route between points"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/RouteSummary"
+          },
+          "units": {
+            "type": "string",
+            "example": "kilometers"
+          }
+        }
+      },
+      "Units": {
+        "type": "string",
+        "enum": [
+          "kilometers",
+          "miles"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "rw_live_…",
+        "description": "Pass your API key as a Bearer token in the `Authorization` header. Keys are scoped to a project; their plain text is shown once at creation in the dashboard. Keys starting with `rw_test_` use the same routes but are intended for staging/CI."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Tiles",
+      "description": "Short-lived signed URLs for the vector basemap."
+    },
+    {
+      "name": "Geocoding",
+      "description": "Forward + reverse geocoding over a worldwide place index."
+    },
+    {
+      "name": "Routing",
+      "description": "Turn-by-turn directions, travel-time matrices, and reachable-area isochrones."
+    }
+  ]
+}
