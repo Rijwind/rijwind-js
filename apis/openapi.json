@@ -21,13 +21,214 @@
     }
   ],
   "paths": {
-    "/v1/geocode/autocomplete": {
+    "/directions-matrix/v1": {
+      "post": {
+        "tags": [
+          "Routing"
+        ],
+        "summary": "Travel-time matrix.",
+        "description": "Calculate the travel time and distance between every source and every target — the cost grows with `M × N`, the number of pairs.\n\n**Quota cost:** `M × N` units per call (`M = sources`, `N = targets`). Capped at `M × N ≤ 2500`; requests beyond that return 400 without charging quota.",
+        "operationId": "matrix",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatrixRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matrix response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatrixResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed, costing unsupported, or `M × N > 2500`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/directions/v1": {
+      "post": {
+        "tags": [
+          "Routing"
+        ],
+        "summary": "Turn-by-turn directions.",
+        "description": "Calculate a route between two or more waypoints.\n\n**Quota cost:** 1 unit per call.",
+        "operationId": "route",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Route response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed body or unsupported costing profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/isochrone/v1": {
+      "post": {
+        "tags": [
+          "Routing"
+        ],
+        "summary": "Reachable-area polygons.",
+        "description": "Compute reachable-area polygons (isochrones) from one or more origins. Each contour is a time or distance band, returned as a GeoJSON Feature.\n\n**Quota cost:** `5 × L × C` units per call (`L = locations`, `C = contours`). Capped at `L × C ≤ 4`; requests beyond that return 400.",
+        "operationId": "isochrone",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsochroneRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Isochrone response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsochroneResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body malformed, costing unsupported, or `L × C > 4`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Monthly quota exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/search/geocode/v1/autocomplete": {
       "get": {
         "tags": [
           "Geocoding"
         ],
         "summary": "Geocode autocomplete (type-ahead).",
-        "description": "Type-ahead variant of `/v1/geocode/search`, billed at a tenth of the cost — fire it on every keystroke from a search bar.\n\n**Quota cost:** 0.1 unit per call.",
+        "description": "Type-ahead variant of `/search/geocode/v1/forward`, billed at a tenth of the cost — fire it on every keystroke from a search bar.\n\n**Quota cost:** 0.1 unit per call.",
         "operationId": "geocode_autocomplete",
         "parameters": [
           {
@@ -102,109 +303,7 @@
         ]
       }
     },
-    "/v1/geocode/reverse": {
-      "get": {
-        "tags": [
-          "Geocoding"
-        ],
-        "summary": "Reverse geocode.",
-        "description": "Turn coordinates into the nearest named place.\n\n**Quota cost:** 1 unit per call.",
-        "operationId": "geocode_reverse",
-        "parameters": [
-          {
-            "name": "lat",
-            "in": "query",
-            "description": "Latitude.",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": "double"
-            },
-            "example": 52.3676
-          },
-          {
-            "name": "lon",
-            "in": "query",
-            "description": "Longitude.",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": "double"
-            },
-            "example": 4.9041
-          },
-          {
-            "name": "lang",
-            "in": "query",
-            "description": "Preferred language.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "example": "en"
-          },
-          {
-            "name": "radius",
-            "in": "query",
-            "description": "Search radius in kilometers.",
-            "required": false,
-            "schema": {
-              "type": "number",
-              "format": "double"
-            },
-            "example": 1.0
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Reverse-geocode result.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlaceFeatureCollection"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Latitude or longitude out of range.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing, malformed, or revoked API key.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Monthly quota exhausted.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/v1/geocode/search": {
+    "/search/geocode/v1/forward": {
       "get": {
         "tags": [
           "Geocoding"
@@ -324,37 +423,72 @@
         ]
       }
     },
-    "/v1/isochrone": {
-      "post": {
+    "/search/geocode/v1/reverse": {
+      "get": {
         "tags": [
-          "Routing"
+          "Geocoding"
         ],
-        "summary": "Reachable-area polygons.",
-        "description": "Compute reachable-area polygons (isochrones) from one or more origins. Each contour is a time or distance band, returned as a GeoJSON Feature.\n\n**Quota cost:** `5 × L × C` units per call (`L = locations`, `C = contours`). Capped at `L × C ≤ 4`; requests beyond that return 400.",
-        "operationId": "isochrone",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsochroneRequest"
-              }
-            }
+        "summary": "Reverse geocode.",
+        "description": "Turn coordinates into the nearest named place.\n\n**Quota cost:** 1 unit per call.",
+        "operationId": "geocode_reverse",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Latitude.",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 52.3676
           },
-          "required": true
-        },
+          {
+            "name": "lon",
+            "in": "query",
+            "description": "Longitude.",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 4.9041
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "description": "Preferred language.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "en"
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "description": "Search radius in kilometers.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 1.0
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Isochrone response.",
+            "description": "Reverse-geocode result.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IsochroneResponse"
+                  "$ref": "#/components/schemas/PlaceFeatureCollection"
                 }
               }
             }
           },
           "400": {
-            "description": "Body malformed, costing unsupported, or `L × C > 4`.",
+            "description": "Latitude or longitude out of range.",
             "content": {
               "application/json": {
                 "schema": {
@@ -391,37 +525,100 @@
         ]
       }
     },
-    "/v1/matrix": {
-      "post": {
+    "/styles/v1/{style}/static/{position}/{size}": {
+      "get": {
         "tags": [
-          "Routing"
+          "Static Maps"
         ],
-        "summary": "Travel-time matrix.",
-        "description": "Calculate the travel time and distance between every source and every target — the cost grows with `M × N`, the number of pairs.\n\n**Quota cost:** `M × N` units per call (`M = sources`, `N = targets`). Capped at `M × N ≤ 2500`; requests beyond that return 400 without charging quota.",
-        "operationId": "matrix",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MatrixRequest"
-              }
+        "summary": "Render a static map image.",
+        "description": "Render a static map image — a map drawn server-side and returned as a PNG, WebP, or JPEG you can drop straight into an `<img>` tag. Pass your API key as `?key=…`.\n\nThe viewport is `{lon},{lat},{zoom}` (optionally `,{bearing},{pitch}`), a bounding box `[{minLon},{minLat},{maxLon},{maxLat}]`, or the literal `auto` to frame the overlays. Add markers, paths, and a circle via the query string.\n\n**Quota cost:** 1 unit per image; 2 units for `@2x` (High-DPI).",
+        "operationId": "static_map",
+        "parameters": [
+          {
+            "name": "style",
+            "in": "path",
+            "description": "Basemap style: `light`, `dark`, `grayscale`, `white`, or `black`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "light"
+          },
+          {
+            "name": "position",
+            "in": "path",
+            "description": "`{lon},{lat},{zoom}` (optionally `,{bearing},{pitch}`), a bounding box `[{minLon},{minLat},{maxLon},{maxLat}]`, or `auto`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "4.9041,52.3676,12"
+          },
+          {
+            "name": "size",
+            "in": "path",
+            "description": "`{w}x{h}`, optional `@2x` for High-DPI, optional `.png`/`.webp`/`.jpg`. Max 1280 per side.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "800x500@2x.png"
+          },
+          {
+            "name": "marker",
+            "in": "query",
+            "description": "Marker `lon,lat|color|size|label` (color hex no `#`; size `s|m|l`). Repeatable.",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           },
-          "required": true
-        },
+          {
+            "name": "path",
+            "in": "query",
+            "description": "Path `stroke:color|width:n|opacity:n|fill:color|fillOpacity:n|<geometry>` (named fields, any order; geometry `enc:<polyline>` or `lon,lat;lon,lat;…`). Repeatable.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "circle",
+            "in": "query",
+            "description": "Circle around the center: `radius:meters|stroke:color|strokeWidth:n|fill:color|fillOpacity:n`.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "padding",
+            "in": "query",
+            "description": "Inner padding (px) when fitting a bbox or `auto` — 1–4 CSS-order values, e.g. `40` or `40,20,40,20`.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attribution",
+            "in": "query",
+            "description": "Attribution corner `bottomright|bottomleft|topleft|topright`, or `false` to omit it (you must then credit OpenStreetMap elsewhere).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Matrix response.",
+            "description": "Rendered map image.",
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MatrixResponse"
-                }
-              }
+              "image/png": {}
             }
           },
           "400": {
-            "description": "Body malformed, costing unsupported, or `M × N > 2500`.",
+            "description": "Invalid style, size, or viewport.",
             "content": {
               "application/json": {
                 "schema": {
@@ -458,74 +655,7 @@
         ]
       }
     },
-    "/v1/route": {
-      "post": {
-        "tags": [
-          "Routing"
-        ],
-        "summary": "Turn-by-turn directions.",
-        "description": "Calculate a route between two or more waypoints.\n\n**Quota cost:** 1 unit per call.",
-        "operationId": "route",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RouteRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Route response.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RouteResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Malformed body or unsupported costing profile.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing, malformed, or revoked API key.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Monthly quota exhausted.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/v1/tiles-token": {
+    "/tiles/v1/token": {
       "get": {
         "tags": [
           "Tiles"
@@ -1260,6 +1390,10 @@
     {
       "name": "Routing",
       "description": "Turn-by-turn directions, travel-time matrices, and reachable-area isochrones."
+    },
+    {
+      "name": "Static Maps",
+      "description": "Server-rendered map images for `<img>` tags, with markers, paths, and circles."
     }
   ]
 }

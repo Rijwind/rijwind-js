@@ -4,95 +4,7 @@
  */
 
 export interface paths {
-    "/v1/geocode/autocomplete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Geocode autocomplete (type-ahead).
-         * @description Type-ahead variant of `/v1/geocode/search`, billed at a tenth of the cost — fire it on every keystroke from a search bar.
-         *
-         *     **Quota cost:** 0.1 unit per call.
-         */
-        get: operations["geocode_autocomplete"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/geocode/reverse": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Reverse geocode.
-         * @description Turn coordinates into the nearest named place.
-         *
-         *     **Quota cost:** 1 unit per call.
-         */
-        get: operations["geocode_reverse"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/geocode/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Forward geocode.
-         * @description Turn a place name or address into coordinates. Returns a GeoJSON FeatureCollection ranked by relevance.
-         *
-         *     **Quota cost:** 1 unit per call.
-         */
-        get: operations["geocode_search"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/isochrone": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reachable-area polygons.
-         * @description Compute reachable-area polygons (isochrones) from one or more origins. Each contour is a time or distance band, returned as a GeoJSON Feature.
-         *
-         *     **Quota cost:** `5 × L × C` units per call (`L = locations`, `C = contours`). Capped at `L × C ≤ 4`; requests beyond that return 400.
-         */
-        post: operations["isochrone"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/matrix": {
+    "/directions-matrix/v1": {
         parameters: {
             query?: never;
             header?: never;
@@ -114,7 +26,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/route": {
+    "/directions/v1": {
         parameters: {
             query?: never;
             header?: never;
@@ -136,7 +48,119 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/tiles-token": {
+    "/isochrone/v1": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reachable-area polygons.
+         * @description Compute reachable-area polygons (isochrones) from one or more origins. Each contour is a time or distance band, returned as a GeoJSON Feature.
+         *
+         *     **Quota cost:** `5 × L × C` units per call (`L = locations`, `C = contours`). Capped at `L × C ≤ 4`; requests beyond that return 400.
+         */
+        post: operations["isochrone"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search/geocode/v1/autocomplete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Geocode autocomplete (type-ahead).
+         * @description Type-ahead variant of `/search/geocode/v1/forward`, billed at a tenth of the cost — fire it on every keystroke from a search bar.
+         *
+         *     **Quota cost:** 0.1 unit per call.
+         */
+        get: operations["geocode_autocomplete"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search/geocode/v1/forward": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Forward geocode.
+         * @description Turn a place name or address into coordinates. Returns a GeoJSON FeatureCollection ranked by relevance.
+         *
+         *     **Quota cost:** 1 unit per call.
+         */
+        get: operations["geocode_search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search/geocode/v1/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reverse geocode.
+         * @description Turn coordinates into the nearest named place.
+         *
+         *     **Quota cost:** 1 unit per call.
+         */
+        get: operations["geocode_reverse"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/styles/v1/{style}/static/{position}/{size}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Render a static map image.
+         * @description Render a static map image — a map drawn server-side and returned as a PNG, WebP, or JPEG you can drop straight into an `<img>` tag. Pass your API key as `?key=…`.
+         *
+         *     The viewport is `{lon},{lat},{zoom}` (optionally `,{bearing},{pitch}`), a bounding box `[{minLon},{minLat},{maxLon},{maxLat}]`, or the literal `auto` to frame the overlays. Add markers, paths, and a circle via the query string.
+         *
+         *     **Quota cost:** 1 unit per image; 2 units for `@2x` (High-DPI).
+         */
+        get: operations["static_map"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tiles/v1/token": {
         parameters: {
             query?: never;
             header?: never;
@@ -423,6 +447,159 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    matrix: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatrixRequest"];
+            };
+        };
+        responses: {
+            /** @description Matrix response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatrixResponse"];
+                };
+            };
+            /** @description Body malformed, costing unsupported, or `M × N > 2500`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Missing, malformed, or revoked API key. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Monthly quota exhausted. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    route: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RouteRequest"];
+            };
+        };
+        responses: {
+            /** @description Route response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteResponse"];
+                };
+            };
+            /** @description Malformed body or unsupported costing profile. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Missing, malformed, or revoked API key. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Monthly quota exhausted. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    isochrone: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IsochroneRequest"];
+            };
+        };
+        responses: {
+            /** @description Isochrone response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IsochroneResponse"];
+                };
+            };
+            /** @description Body malformed, costing unsupported, or `L × C > 4`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Missing, malformed, or revoked API key. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Monthly quota exhausted. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     geocode_autocomplete: {
         parameters: {
             query: {
@@ -455,74 +632,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlaceFeatureCollection"];
-                };
-            };
-            /** @description Missing, malformed, or revoked API key. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Monthly quota exhausted. */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    geocode_reverse: {
-        parameters: {
-            query: {
-                /**
-                 * @description Latitude.
-                 * @example 52.3676
-                 */
-                lat: number;
-                /**
-                 * @description Longitude.
-                 * @example 4.9041
-                 */
-                lon: number;
-                /**
-                 * @description Preferred language.
-                 * @example en
-                 */
-                lang?: string;
-                /**
-                 * @description Search radius in kilometers.
-                 * @example 1
-                 */
-                radius?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Reverse-geocode result. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlaceFeatureCollection"];
-                };
-            };
-            /** @description Latitude or longitude out of range. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Missing, malformed, or revoked API key. */
@@ -614,29 +723,46 @@ export interface operations {
             };
         };
     };
-    isochrone: {
+    geocode_reverse: {
         parameters: {
-            query?: never;
+            query: {
+                /**
+                 * @description Latitude.
+                 * @example 52.3676
+                 */
+                lat: number;
+                /**
+                 * @description Longitude.
+                 * @example 4.9041
+                 */
+                lon: number;
+                /**
+                 * @description Preferred language.
+                 * @example en
+                 */
+                lang?: string;
+                /**
+                 * @description Search radius in kilometers.
+                 * @example 1
+                 */
+                radius?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IsochroneRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Isochrone response. */
+            /** @description Reverse-geocode result. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["IsochroneResponse"];
+                    "application/json": components["schemas"]["PlaceFeatureCollection"];
                 };
             };
-            /** @description Body malformed, costing unsupported, or `L × C > 4`. */
+            /** @description Latitude or longitude out of range. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -665,80 +791,52 @@ export interface operations {
             };
         };
     };
-    matrix: {
+    static_map: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Marker `lon,lat|color|size|label` (color hex no `#`; size `s|m|l`). Repeatable. */
+                marker?: string;
+                /** @description Path `stroke:color|width:n|opacity:n|fill:color|fillOpacity:n|<geometry>` (named fields, any order; geometry `enc:<polyline>` or `lon,lat;lon,lat;…`). Repeatable. */
+                path?: string;
+                /** @description Circle around the center: `radius:meters|stroke:color|strokeWidth:n|fill:color|fillOpacity:n`. */
+                circle?: string;
+                /** @description Inner padding (px) when fitting a bbox or `auto` — 1–4 CSS-order values, e.g. `40` or `40,20,40,20`. */
+                padding?: string;
+                /** @description Attribution corner `bottomright|bottomleft|topleft|topright`, or `false` to omit it (you must then credit OpenStreetMap elsewhere). */
+                attribution?: string;
+            };
             header?: never;
-            path?: never;
+            path: {
+                /**
+                 * @description Basemap style: `light`, `dark`, `grayscale`, `white`, or `black`.
+                 * @example light
+                 */
+                style: string;
+                /**
+                 * @description `{lon},{lat},{zoom}` (optionally `,{bearing},{pitch}`), a bounding box `[{minLon},{minLat},{maxLon},{maxLat}]`, or `auto`.
+                 * @example 4.9041,52.3676,12
+                 */
+                position: string;
+                /**
+                 * @description `{w}x{h}`, optional `@2x` for High-DPI, optional `.png`/`.webp`/`.jpg`. Max 1280 per side.
+                 * @example 800x500@2x.png
+                 */
+                size: string;
+            };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MatrixRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Matrix response. */
+            /** @description Rendered map image. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MatrixResponse"];
+                    "image/png": unknown;
                 };
             };
-            /** @description Body malformed, costing unsupported, or `M × N > 2500`. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Missing, malformed, or revoked API key. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Monthly quota exhausted. */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    route: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RouteRequest"];
-            };
-        };
-        responses: {
-            /** @description Route response. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RouteResponse"];
-                };
-            };
-            /** @description Malformed body or unsupported costing profile. */
+            /** @description Invalid style, size, or viewport. */
             400: {
                 headers: {
                     [name: string]: unknown;

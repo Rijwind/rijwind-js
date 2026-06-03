@@ -53,7 +53,7 @@ type ManagedSession = { archiveKey: string; destroy: () => void };
  * pmtiles and authenticates with the API key.
  */
 function openSession(apiKey: string, protocol: Protocol): ManagedSession {
-    const issuerUrl = `${config.baseUrl.replace(/\/$/, '')}/v1/tiles-token`;
+    const issuerUrl = `${config.baseUrl.replace(/\/$/, '')}/tiles/v1/token`;
     const fetchImpl = config.fetch ?? fetch;
     const sessionId = crypto.randomUUID();
     const archiveKey = `rijwind-${sessionId}`;

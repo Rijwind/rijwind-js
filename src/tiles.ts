@@ -108,7 +108,7 @@ export async function createTileSession(opts: CreateTileSessionOptions): Promise
     }
     const baseUrl = (opts.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, '');
     const fetchImpl = opts.fetch ?? fetch;
-    const issuerUrl = `${baseUrl}/v1/tiles-token`;
+    const issuerUrl = `${baseUrl}/tiles/v1/token`;
 
     // One opaque session id per map instance. The archive key is derived from
     // it so concurrent maps never collide on the shared protocol. `[a-z0-9-]`

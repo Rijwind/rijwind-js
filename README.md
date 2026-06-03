@@ -102,6 +102,35 @@ const { data } = await rijwind.isochrone({
 });
 ```
 
+## Static maps
+
+`staticMapUrl(params)` builds a URL for a server-rendered map image — drop it
+straight into an `<img>`. Pure string building (no network, no map library), so
+it works in Node and the browser, and is exported from both `@rijwind/sdk` and
+`@rijwind/sdk/client`.
+
+```ts
+import { staticMapUrl, config } from '@rijwind/sdk';
+config.apiKey = 'rw_live_…';
+
+const url = staticMapUrl({
+    center: [4.9041, 52.3676],
+    zoom: 12,
+    size: [800, 500],
+    style: 'light', // light | dark | grayscale | white | black
+    hidpi: true, // @2x (High-DPI) — costs 2 units
+    markers: [{ lon: 4.9041, lat: 52.3676, color: '#ff0000', size: 'l', label: 'A' }],
+    circle: { radiusMeters: 1000, fillColor: '#0066ff', fillOpacity: 0.15 },
+});
+// <img src={url} width={800} height={500} alt="map" />
+```
+
+Instead of `center` + `zoom`, give a `bbox: [minLon, minLat, maxLon, maxLat]`, or
+set `auto: true` to frame the overlays — the same three viewport modes as Mapbox
+and MapTiler. Add `paths` for polylines, `format: 'jpg' | 'webp'`, `padding`, and
+`attribution` (a corner, or `false`). Billed 1 unit per image (2 for `@2x`), from
+the same pool as every other endpoint.
+
 ## Configuration
 
 `config` holds the defaults every `Map` and `createClient` falls back to:
@@ -146,7 +175,7 @@ Need an endpoint that isn't wrapped? Drop down to the underlying
 openapi-fetch client — it speaks the full OpenAPI surface:
 
 ```ts
-const { data } = await rijwind.raw.GET('/v1/tiles-token');
+const { data } = await rijwind.raw.GET('/tiles/v1/token');
 ```
 
 ## Versioning

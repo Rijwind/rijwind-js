@@ -29,18 +29,18 @@ export type RijwindClientOptions = {
 // Query and body types — derived from the OpenAPI spec so they stay in
 // sync as the API evolves. Re-export them so consumers can type their
 // own helper functions without depending on openapi-fetch directly.
-export type GeocodeSearchParams = NonNullable<paths['/v1/geocode/search']['get']['parameters']['query']>;
-export type GeocodeAutocompleteParams = NonNullable<paths['/v1/geocode/autocomplete']['get']['parameters']['query']>;
-export type GeocodeReverseParams = NonNullable<paths['/v1/geocode/reverse']['get']['parameters']['query']>;
-export type RouteRequest = NonNullable<paths['/v1/route']['post']['requestBody']>['content']['application/json'];
-export type MatrixRequest = NonNullable<paths['/v1/matrix']['post']['requestBody']>['content']['application/json'];
-export type IsochroneRequest = NonNullable<paths['/v1/isochrone']['post']['requestBody']>['content']['application/json'];
+export type GeocodeSearchParams = NonNullable<paths['/search/geocode/v1/forward']['get']['parameters']['query']>;
+export type GeocodeAutocompleteParams = NonNullable<paths['/search/geocode/v1/autocomplete']['get']['parameters']['query']>;
+export type GeocodeReverseParams = NonNullable<paths['/search/geocode/v1/reverse']['get']['parameters']['query']>;
+export type RouteRequest = NonNullable<paths['/directions/v1']['post']['requestBody']>['content']['application/json'];
+export type MatrixRequest = NonNullable<paths['/directions-matrix/v1']['post']['requestBody']>['content']['application/json'];
+export type IsochroneRequest = NonNullable<paths['/isochrone/v1']['post']['requestBody']>['content']['application/json'];
 
-export type SignedTileUrl = paths['/v1/tiles-token']['get']['responses'][200]['content']['application/json'];
-export type PlaceFeatureCollection = paths['/v1/geocode/search']['get']['responses'][200]['content']['application/json'];
-export type RouteResponse = paths['/v1/route']['post']['responses'][200]['content']['application/json'];
-export type MatrixResponse = paths['/v1/matrix']['post']['responses'][200]['content']['application/json'];
-export type IsochroneResponse = paths['/v1/isochrone']['post']['responses'][200]['content']['application/json'];
+export type SignedTileUrl = paths['/tiles/v1/token']['get']['responses'][200]['content']['application/json'];
+export type PlaceFeatureCollection = paths['/search/geocode/v1/forward']['get']['responses'][200]['content']['application/json'];
+export type RouteResponse = paths['/directions/v1']['post']['responses'][200]['content']['application/json'];
+export type MatrixResponse = paths['/directions-matrix/v1']['post']['responses'][200]['content']['application/json'];
+export type IsochroneResponse = paths['/isochrone/v1']['post']['responses'][200]['content']['application/json'];
 
 export function createClient(options: RijwindClientOptions = {}) {
     const apiKey = options.apiKey ?? config.apiKey;
@@ -68,40 +68,43 @@ export function createClient(options: RijwindClientOptions = {}) {
              * for you.
              */
             async token() {
-                return client.GET('/v1/tiles-token');
+                return client.GET('/tiles/v1/token');
             },
         },
 
         geocode: {
             /** Forward geocode — turn a place name or address into coordinates. */
             async search(params: GeocodeSearchParams) {
-                return client.GET('/v1/geocode/search', { params: { query: params } });
+                return client.GET('/search/geocode/v1/forward', { params: { query: params } });
             },
             /** Type-ahead variant, billed at 0.1 unit per call. */
             async autocomplete(params: GeocodeAutocompleteParams) {
-                return client.GET('/v1/geocode/autocomplete', { params: { query: params } });
+                return client.GET('/search/geocode/v1/autocomplete', { params: { query: params } });
             },
             /** Reverse geocode — coordinates to the nearest named place. */
             async reverse(params: GeocodeReverseParams) {
-                return client.GET('/v1/geocode/reverse', { params: { query: params } });
+                return client.GET('/search/geocode/v1/reverse', { params: { query: params } });
             },
         },
 
         /** Turn-by-turn directions between two or more waypoints. */
         async route(body: RouteRequest) {
-            return client.POST('/v1/route', { body });
+            return client.POST('/directions/v1', { body });
         },
 
         /** Travel-time matrix. Capped at `M × N ≤ 2500`. */
         async matrix(body: MatrixRequest) {
-            return client.POST('/v1/matrix', { body });
+            return client.POST('/directions-matrix/v1', { body });
         },
 
         /** Reachable-area polygons. Capped at `L × C ≤ 4`. */
         async isochrone(body: IsochroneRequest) {
-            return client.POST('/v1/isochrone', { body });
+            return client.POST('/isochrone/v1', { body });
         },
     };
 }
 
 export type RijwindClient = ReturnType<typeof createClient>;
+
+// Static map image URLs — pure string building, no network or map library.
+export * from './static';

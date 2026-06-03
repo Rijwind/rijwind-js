@@ -1,6 +1,6 @@
 {
     "name": "@rijwind/sdk",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Maps, geocoding, and routing SDK for the Rijwind API.",
     "license": "MIT",
     "homepage": "https://docs.rijwind.com",
@@ -38,7 +38,8 @@
     "scripts": {
         "gen-types": "openapi-typescript ./apis/openapi.json -o src/types.ts",
         "build": "npm run gen-types && tsc && cp src/style.css dist/style.css",
-        "lint": "tsc --noEmit"
+        "lint": "tsc --noEmit",
+        "test": "bun test"
     },
     "dependencies": {
         "maplibre-gl": "^5.0.0",
